@@ -38,17 +38,17 @@ Esta accion permite colocar una orden de venta de BTC por medio de la
 API. Una orden de venta representa una solicitud del usuario por realizar una venta de BTC. Una vez colocada la orden el usuario se compromete a enviar los BTC y Yaykuy se compromete a entregar los CLP acordados en la orden (independiente de las variaciones de precios posteriores).
 
 Los parametros de la orden de venta son:
-- *amount_BTC*   : Monto de BTC que el usuario desea enviar
-- *sell_BTC_CLP* : Precio al cual el usuario desea vender los BTC. Este precio es el obtenido previamente con `/prices`
-- *email*		 : Este parametro es opcional y permite que yaykuy se pueda comunicar con el usuario en caso de problemas con la orden.
-- *pin*			 : Este parematro es opcional. Actualmente no esta en uso puesto que la unica forma de entregar los CLP es por transferencia bancaria. 
+- `amount_BTC`   : Monto de BTC que el usuario desea enviar
+- `sell_BTC_CLP` : Precio al cual el usuario desea vender los BTC. Este precio es el obtenido previamente con `/prices`
+- `email`		 : Este parametro es opcional y permite que yaykuy se pueda comunicar con el usuario en caso de problemas con la orden.
+- `pin`			 : Este parametro es opcional. Actualmente no esta en uso puesto que la unica forma de entregar los CLP es por transferencia bancaria. 
 
 Los parametros de respuesta son:
-- *status*         : Estado de la orden de venta. "ok" o "error"
-- *message*        : Mensaje en caso de error
-- *deposit_BTC*    : Direccion bitcoin de yaykuy a donde se deben enviar los BTC
-- *amount_CLP*     : Monto en CLP que se pagaran al usuario. Es la multiplicacion de los parametros de entrada *amount_BTC* y *sell_BTC_CLP*
-- *yky_code*       : Codigo yky para recibir el pago. Este codigo debe usarse para la accion `/bank_pay`.
+- `status`         : Estado de la orden de venta. "ok" o "error"
+- `message`        : Mensaje en caso de error
+- `deposit_BTC`    : Direccion bitcoin de yaykuy a donde se deben enviar los BTC
+- `amount_CLP`     : Monto en CLP que se pagaran al usuario. Es la multiplicacion de los parametros de entrada `amount_BTC` y `sell_BTC_CLP`
+- `yky_code`       : Codigo yky para recibir el pago. Este codigo debe usarse para la accion `/bank_pay`.
 
 Los errores posibles para la orden de compra son
 - Parametros faltantes
