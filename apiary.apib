@@ -1,0 +1,239 @@
+HOST: https://api.yaykuy.cl/
+
+--- yaykuy ---
+
+---
+backend de yaykuy.
+
+API que provee acceso al front y los demas partners.
+
+Para obtener un token de autenticacion, enviar un correo a api@yaykuy.cl
+
+---
+
+-- Front (hacia usuarios) --
+
+Precios de compra y venta de BTC en CLP
+
+    token: (token de autenticacion, ej: 7b554b80-92df-4aa5-bcb1-a8d2f82658a5)
+
+Descripcion de la salida:
+
+    { 
+       "buy_BTC_CLP"  : (precio de compra en CLP por un BTC)
+       "sell_BTC_CLP" : (precio de venta en CLP de un BTC)
+       "ask_USD_BTC"  : (precio referencial de oferta)
+       "bid_USD_BTC"  : (precio referencial de demanda)
+       "USD_CLP"      : (precio referencial de un USD en CLP)
+       "current_fee"  : (porcentaje de margen cobrado, solo informativo)
+    }
+
+GET /prices?token={token}
+< 200
+< Content-Type: application/json
+{
+    "buy_BTC_CLP"  : 56789, 
+    "sell_BTC_CLP" : 54321,
+    "ask_USD_BTC"  : 1202,
+    "bid_USD_BTC"  : 1130,
+    "USD_CLP"      : 520,
+    "current_fee"  : "1.0%"
+}
+
+Permite ingresar ordenes de compra de BTC con CLP. Usuario tiene CLP y quiere
+darselos a yaykuy a cambio de BTC.
+
+Entrada:
+
+     {
+      "token"      : (token de autenticacion)
+      "amount_BTC" : (monto en BTC que se desean comprar, punto como separador decimal)
+	  "buy_BTC_CLP": (valor con el cual se desean comprar los BTC, retornado por /prices)
+	  "deliver_BTC": (direccion bitcoin del usuario donde desea recibir los BTC)
+	  "email"      : (direccion de email de contacto para notificaciones. Opcional)
+	  }
+
+Salida:
+
+    { 
+       "status"     : (estado de la orden de compra. "ok" o "error")
+       "message"    : (mensaje de error)
+       "amount_CLP" : (monto en CLP a pagar a yaykuy)
+       "yky_code"   : (codigo para efectuar el pago)
+    }
+
+POST /buy
+{
+    "token"      : "7b554b80-92df-4aa5-bcb1-a8d2f82658a5", 
+    "amount_BTC" : 10.3, 
+    "buy_BTC_CLP": 56789, 
+    "deliver_BTC": "1QJfRZYP3giL89HLZJvoTuB26rWvhAHWFW", 
+    "email"      : "test@example.com"
+}
+< 200
+{ 
+    "status"    : "ok", 
+    "message"   : "no problem", 
+    "amount_CLP": 584927, 
+    "yky_code"  :"cdsad-313da-23asd-ct45r" 
+}
+
+
+Permite ingresar ordenes de venta de BTC por CLP. Usuario tiene BTC y quiere darselos 
+a yaykuy a cambio de CLP
+
+Entrada:
+
+     {
+      "token"       : (token de autenticacion)
+      "amount_BTC"  : (monto en BTC que se desean vender, punto como separador decimal)
+	  "sell_BTC_CLP": (valor con el cual se desean vender los BTC, retornado por /prices)
+	  "email"       : (direccion de email de contacto para notificaciones. Opcional)
+	  "pin"         : (numero de identificacion personal. 4 digitos. Opcional)
+	 }
+
+Salida:
+
+    { 
+       "status"         : (estado de la orden de venta. "ok" o "error")
+       "message"        : (mensaje de error)
+       "deposit_BTC"    : (direccion bitcoin de yaykuy a donde se deben enviar los BTC)
+       "amount_CLP"     : (monto en CLP que se pagaran al usuario)
+	   "yky_code"       : (codigo yky para recibir el pago)
+    }
+
+POST /sell
+{
+    "token"       :"7b554b80-92df-4aa5-bcb1-a8d2f82658a5", 
+    "amount_BTC"  : 10.3, 
+    "sell_BTC_CLP": 54321, 
+    "email"       : "test@example.com",
+    "pin"         : "1234"
+}
+< 200
+{ 
+    "status":"ok", 
+    "message": "no problem", 
+    "deposit_BTC": "1QJfRZYP3giL89HLZJvoTuB26rWvhAHWFW", 
+    "amount_CLP": 559506, 
+    "yky_code":"vdsad-313da-23asd-ct45r" 
+}
+
+
+-- Back (hacia partners) --
+
+Permite consultar por un codigo yky, tanto de compra o de venta. El usuario entrega al partner un yky_code para ser revisado
+
+    code : (codigo yky a consultar)
+    token: (token de autenticacion, ej: 7b554b80-92df-4aa5-bcb1-a8d2f82658a5)
+
+Descripcion de la salida en caso de ser un codigo yky de compra:
+
+    { 
+       "type"         : "buy"
+       "datetime"     : (fecha y hora de creacion del registro)
+       "amount_BTC"   : (monto en BTC que se desean comprar, punto como separador decimal)
+       "buy_BTC_CLP"  : (valor con el cual se desean comprar los BTC, retornado por /prices)
+	   "deliver_BTC"  : (direccion bitcoin del usuario donde desea recibir los BTC)
+	   "email"        : (direccion de email de contacto para notificaciones. Opcional)
+	   "amount_CLP"   : (monto en CLP a pagar a yaykuy)
+	   "status_CLP"   : (estado del pago. "done" o "waiting")
+	   "datetime_CLP" : (fecha y hora de recepcion de los CLP)
+	   "status_BTC"   : (estado de la entrega de BTC. "done" o "error")
+	   "datetime_BTC" : (fecha y hora de entrega de los BTC)
+	   "deliver_error": (mensaje de error en caso de no poder enviar los BTC)
+    }
+    
+Descripcion de la salida en caso de ser un codigo yky de venta:
+
+    { 
+       "type"         : "sell"
+       "datetime"     : (fecha y hora de creacion del registro)
+       "amount_BTC"   : (monto en BTC que se desean ventaer, punto como separador decimal)
+       "sell_BTC_CLP" : (valor con el cual se desean comprar los BTC, retornado por /prices)
+	   "email"        : (direccion de email de contacto para notificaciones. Opcional)
+	   "pin"          : (numero de identificacion personal. 4 digitos. Opcional)
+	   "amount_CLP"   : (monto en CLP que de deben pagar al usuario)
+	   "deposit_BTC"  : (direccion bitcoin de yaykuy a donde se deben enviar los BTC)
+	   "status_BTC"   : (estado de la recepcion de BTC. "done" o "waiting")
+	   "datetime_BTC" : (fecha y hora de recepcion de los CLP)
+	   "status_CLP"   : (estado del pago. "done" o "error")
+	   "datetime_CLP" : (fecha y hora de entrega de los CLP)
+	   "deliver_error": (mensaje de error en caso de no poder pagar los CLP)
+    }
+
+
+GET /yky?code={code}&token={token}
+< 200
+< Content-Type: application/json
+{ 
+       "type"         : "buy",
+       "datetime"     : "2013-09-11 14:11:12.002",
+       "amount_BTC"   : 10.3,
+       "buy_BTC_CLP"  : 54321,
+	   "deliver_BTC"  : "1QJfRZYP3giL89HLZJvoTuB26rWvhAHWFW", 
+	   "email"        : "test@examples.com",
+	   "amount_CLP"   : 543210,
+	   "status_CLP"   : "waiting"
+}
+
+
+Permite informar la recaudacion de CLP para un codigo yky de compra
+
+Entrada:
+
+    {
+        "token"       : (token de autenticacion) 
+        "yky_code"    : (codigo para el cual se recolectó el pago)
+        "amount_CLP"  : (monto en CLP recolectado)
+	}
+
+Salida:
+
+    { 
+       "status"     : (resultado de la notificacion. "ok" o "error")
+       "message"    : (mensaje de error)
+    }
+
+POST /collect
+{
+    "token"       :"7b554b80-92df-4aa5-bcb1-a8d2f82658a5", 
+    "yky_code"    :"vdsad-313da-23asd-ct45r" 
+    "amount_CLP"  : 543210
+}
+< 200
+{ 
+    "status":"ok", 
+    "message": "no problem", 
+}
+
+Permite informar el pago de CLP para un codigo yky de venta
+
+Entrada:
+
+    {
+        "token"       : (token de autenticacion) 
+        "yky_code"    : (codigo para el cual se pago)
+        "pin"         : (numero de identificacion personal. 4 digitos. Opcional)
+        "amount_CLP"  : (monto en CLP pagado)
+	}
+
+Salida:
+
+    { 
+       "status"     : (resultado de la notificacion. "ok" o "error")
+       "message"    : (mensaje de error)
+    }
+
+POST /pay
+{
+    "token"       :"7b554b80-92df-4aa5-bcb1-a8d2f82658a5", 
+    "yky_code"    :"vdsad-313da-23asd-ct45r" 
+    "pin"         :"1234" 
+    "amount_CLP"  : 543210
+}
+< 200
+{ 
+    "status":"ok", 
+    "message": "no problem", 
+}
