@@ -48,7 +48,7 @@ Los parametros de respuesta son:
 - `message`        : Mensaje en caso de error
 - `deposit_BTC`    : Direccion bitcoin de yaykuy a donde se deben enviar los BTC
 - `amount_CLP`     : Monto en CLP que se pagaran al usuario. Es la multiplicacion de los parametros de entrada `amount_BTC` y `sell_BTC_CLP`
-- `yky_code`       : Codigo yky para recibir el pago. Este codigo debe usarse para la accion `/bank_pay`.
+- `yky_code`       : Codigo yky que identifica la orden. Este codigo debe usarse para la accion `/bank_pay`.
 
 Los errores posibles para la orden de compra son
 - Parametros faltantes
@@ -58,4 +58,21 @@ Los errores posibles para la orden de compra son
 
 
 #### Enviar los datos bancarios donde enviar los CLP (`/bank_pay`)
-(TODO)
+Esta accion permite indicar al liquidador de CLP cuales son los datos a los cuales se deben enviar los CLP acordados en `amount_CLP` de la accion `/sell`. Una vez recibidos los BTC en la direccion `deposit_BTC` indicados en `/sell`, el liquidador enviara los CLP a la cuenta registrada con esta accion.
+
+Los parametros de entrada son:
+
+- `yky_code`      : Codigo yky que identifica la orden.
+- `acc_bank`      : Nombre del banco 
+- `acc_number`    : Numero de cuenta
+- `acc_type`      : Tipo de cuenta: 'Corriente', 'Ahorro', 'Vista'
+- `acc_name`      : Nombre completo del dueño de la cuenta
+- `acc_run`       : RUN del dueño de la cuenta
+- `acc_email`     : Email de aviso de transferencia.
+
+#### Consideraciones del sell
+Algunas consideraciones de operacion de Sell. 
+
+- En caso que no se reciban los BTC dentro de un plazo prudente la orden se cancela.
+- Se deben enviar los BTC exactos comprometidos en `/sell`
+- Las transferencias se realizan manualmente por lo que pueden llgar a demorar entre 1 y 2 dias hábiles, sin embargo hacemos nuestro mejor esfuerzo para que el usuario reciba sus CLP lo antes posible.
