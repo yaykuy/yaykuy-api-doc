@@ -237,3 +237,45 @@ POST /pay
     "status":"ok", 
     "message": "no problem", 
 }
+
+-- Bank (pass-thru) --
+Permite registrar una cuenta para realizar el pago de una orden de venta referenciada
+por un yky_code
+
+Entrada:
+
+     {
+      "token"       : (token de autenticacion)
+      "yky_code"`   : (Codigo yky que identifica la orden)
+      "acc_bank"`   : (Nombre del banco)
+      "acc_number"` : (Numero de cuenta)
+      "acc_type"`   : (Tipo de cuenta: 'Corriente', 'Ahorro', 'Vista')
+      "acc_name"`   : (Nombre completo del dueño de la cuenta)
+      "acc_run"`    : (RUN del dueño de la cuenta)
+      "acc_email"`  : (Email de aviso de transferencia)
+     }
+
+Salida:
+
+    { 
+       "status"         : (estado de la orden de venta. "ok" o "error")
+       "message"        : (mensaje de error)
+    }
+
+POST /bank_pay
+{
+    "token"         :"7b554b80-92df-4aa5-bcb1-a8d2f82658a5",
+    "yky_code"      :"cdsad-313da-23asd-ct45r",
+    "acc_bank"      :"Banco de Prueba",
+    "acc_number"    :"01-02-034567-8",
+    "acc_type"      :"Corriente",
+    "acc_name"      :"Nombre de Usuario de Prueba",
+    "acc_run"       :"12.345.678-9",
+    "acc_email"     :"test@yaykuy.cl"
+}
+< 200
+{ 
+    "status":"ok", 
+    "message": "no problem"
+}
+
